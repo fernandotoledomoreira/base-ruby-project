@@ -1,0 +1,49 @@
+# YAML Templates
+default: -p pretty -p ns -p co -p format_allure -p format_json -p format_html -p cdt_hml
+ns: --no-source
+pretty: --format pretty
+co: --color
+format_json: -p pretty --format json --out=reports/target/cucumber-jornada.json
+format_html: -p pretty --format html --out=reports/html/cucumber-jornada.html
+format_allure: --format AllureCucumber::CucumberFormatter --out reports/allure-results
+
+# Environment geral
+cdt_hml: ENV_RUN=cdt_hml
+cdt_dev: ENV_RUN=cdt_dev
+inspector_prd: ENV_RUN=inspector_prd
+
+# Sub emissores
+airfox_hml: ENV_RUN=sub_emissores/airfox_hml
+alterbank_hml: ENV_RUN=sub_emissores/alterbank_hml
+banky_hml: ENV_RUN=sub_emissores/banky_hml
+bitcapital_hml: ENV_RUN=sub_emissores/bitcapital_hml
+bip_hml: ENV_RUN=sub_emissores/bip_hml
+bip_dev: ENV_RUN=sub_emissores/bip_dev
+bip_dev_aws: ENV_RUN=sub_emissores/bip_dev_aws
+boticario_dev: ENV_RUN=sub_emissores/boticario_dev
+boticario2_dev: ENV_RUN=sub_emissores/boticario2_dev
+boticario_dev_p2m: ENV_RUN=sub_emissores/boticario_dev_p2m
+boticario_hml: ENV_RUN=sub_emissores/boticario_hml
+bradesco_dev: ENV_RUN=sub_emissores/bradesco_dev
+bradesco_hml: ENV_RUN=sub_emissores/bradesco_hml
+bradesco_stress_hml: ENV_RUN=sub_emissores/bradesco_stress_hml
+cbss_hml: ENV_RUN=sub_emissores/cbss_hml
+cielo_hml: ENV_RUN=sub_emissores/cielo_hml
+digicash_hml: ENV_RUN=sub_emissores/digicash_hml
+dotz_hml: ENV_RUN=sub_emissores/dotz_hml
+ebanx_hml: ENV_RUN=sub_emissores/ebanx_hml
+getnet_hml: ENV_RUN=sub_emissores/getnet_hml
+getnet_dev: ENV_RUN=sub_emissores/getnet_dev
+linx_hml: ENV_RUN=sub_emissores/linx_hml
+merci_hml: ENV_RUN=sub_emissores/merci_hml
+nexoos_dev: ENV_RUN=sub_emissores/nexoos_dev
+nexoos_hml: ENV_RUN=sub_emissores/nexoos_hml
+rappi_hml: ENV_RUN=sub_emissores/rappi_hml
+pernambucanas_hml: ENV_RUN=sub_emissores/pernambucanas_hml
+target_hml: ENV_RUN=sub_emissores/target_hml
+vtex_hml: ENV_RUN=sub_emissores/vtex_hml
+rede_hml: ENV_RUN=sub_emissores/rede_hml
+amaggi_hml: ENV_RUN=sub_emissores/amaggi_hml
+tipcard_hml: ENV_RUN=sub_emissores/tipcard_hml
+tipcard_dev: ENV_RUN=sub_emissores/tipcard_dev
+vnext_hml: ENV_RUN=sub_emissores/vnext_hml

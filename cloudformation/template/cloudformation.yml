@@ -1,0 +1,131 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Template for red-five frontend infrastructure
+
+Parameters: 
+  Versao:
+    Type: String
+    Default: 0.445.0
+  Version:
+    Type: String
+    Default: 0.445.0
+
+Resources:
+  BucketS3:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        AccessControl: BucketOwnerRead
+        BucketName: report-tests
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+        Environment: dev-ops-tools
+        Service: red-five
+        Stack: !Sub '${AWS::StackName}'
+        Squad: squad-qa
+        Slack: squad-qa
+        Email: qa
+        Resource: s3 
+      TemplateURL: 
+        !Sub 
+          - 'https://s3.amazonaws.com/cdt-devops-tools-lambda-functions-template/template-modules/${version}/s3-${version}.yml'
+          - { version: !Ref Version }
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases: 
+          - 'report-tests.devtools.caradhras.io'
+        Origins:
+          - DomainName: !GetAtt BucketS3.Outputs.BucketDomainName
+            Id: 's3-report-tests'
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
+        Enabled: true
+        Comment: 'report-tests.devtools.caradhras.io'
+        DefaultRootObject: index.html
+        HttpVersion: http2
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - DELETE
+            - GET
+            - HEAD
+            - OPTIONS
+            - PATCH
+            - POST
+            - PUT
+          TargetOriginId: !Sub 's3-report-tests'
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: all
+          ViewerProtocolPolicy: redirect-to-https
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          AcmCertificateArn: arn:aws:acm:us-east-1:758526784474:certificate/4c785f4e-842a-4cd1-b25e-164df7a3a740
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.1_2016
+        CustomErrorResponses:
+          - ErrorCode: 400
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 300
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 300
+      Tags:
+        - Key: env
+          Value: dev-ops-tools
+        - Key: service
+          Value: red-five
+        - Key: stack
+          Value: !Sub '${AWS::StackName}'
+        - Key: squad
+          Value: squad-qa
+        - Key: slack
+          Value: squad-qa
+        - Key: email
+          Value: qa
+        - Key: resource
+          Value: cloud-front
+
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: report-tests.devtools.caradhras.io
+
+  S3Policy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: report-tests
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              CanonicalUser:
+                Fn::GetAtt: [ CloudFrontOriginAccessIdentity, S3CanonicalUserId ]
+            Action: s3:GetObject
+            Resource: 'arn:aws:s3:::report-tests/*'
+
+  WebsiteDNSName:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: Z2ZC34VWACAXKK
+      Name: report-tests.devtools.caradhras.io
+      Type: "A"
+      AliasTarget:
+        HostedZoneId: Z2FDTNDATAQYW2
+        DNSName: !GetAtt [ CloudFrontDistribution, DomainName ]
+
+Outputs:
+  CloudFrontDistribuitionId:
+    Value: !Ref CloudFrontDistribution
+    Description: CloudFront distribution ID
+  CloudFrontEndpoint:
+    Value: !GetAtt [ CloudFrontDistribution, DomainName ]
+    Description: Endpoint for CloudFront distribution
